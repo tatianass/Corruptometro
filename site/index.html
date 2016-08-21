@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+	<meta charset="utf-8" /> 
+	<title>Corruptômetro</title>
+
+	<!-- FusionCharts library-->
+	<script type="text/javascript" src="scripts/js/fusioncharts.js"></script>
+	<script type="text/javascript" src="scripts/js/fusioncharts.widgets.js"></script>
+
+	<!-- FusionCharts theme-->
+	<script type="text/javascript" src="scripts/js/themes/fusioncharts.theme.zune.js"></script>
+
+	<!-- AngularJS library -->
+	<script type="text/javascript" src="scripts/js/angular.js"></script>
+
+	<!-- Angular plugin -->
+	<script type="text/javascript" src="scripts/js/angular-fusioncharts.min.js"></script>
+
+	<!-- Angular model -->
+	<script type="text/javascript" src="angular/model/app.js"></script>
+
+	<!-- Angular controller -->
+	<script type="text/javascript" src="angular/controller/indexController.js"></script>
+
+	<!-- Style -->
+	<link rel="stylesheet" type="text/css" href="style/css/style.css">
+</head>
+<body>
+<div ng-controller="IndexController" >
+	<div class="header">
+		<form ng-submit="search()" class="search">
+		<input type="text" name="valor" ng-model="value">
+		<input type="submit" id="submit" value="Buscar" />
+	</form>
+	
+	</div>
+	
+	<div class="inline emoji"></div>
+	<div fusioncharts class="inline"
+	   width="100"
+       height="400"
+       type="thermometer"
+       dataSource="{{termometro}}" >
+	</div>
+
+    <div fusioncharts class="inline"
+       width="600"
+       height="400"
+       type="bar2d"
+       dataSource="{{features}}" >
+    </div>
+</div>
+</body>
+</html>
