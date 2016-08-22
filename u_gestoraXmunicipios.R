@@ -1,7 +1,5 @@
 #Tatiana - tarefa 2 - especificacao: pegar idhmr do município pelo código
-#mudar para o seu
 
-setwd("C:/Users/Tatiana/Downloads/Compressed/hackfest/tarefa2-idhxmunicipio") 
 municipios <- read.csv("municipios.csv", sep=";", encoding="UTF-8")
 u_gestora <- read.csv("codigo_ugestora.csv", encoding="UTF-8")
 
