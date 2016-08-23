@@ -1,5 +1,4 @@
 
-
 source("data.R")
 
 data = read.csv("../../data/tre_sagres_unificado.csv",header=FALSE,skip=1)

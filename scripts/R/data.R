@@ -36,83 +36,108 @@ if(!require(randomForest)){
 library(randomForest)
 # ----------- Bibliotecas  FIM
 
+# Função para modificar o ano.
+## Gestões entre 2009 e 2012 tem o ano modificado para 2009
+## Gestões entre 2013 e 2016 tem o ano modificado para 2013
 relabel_ano <- function(x){
   ifelse(x >= 2009 && x <2013, 2009, 2013)
 }
 
+# Carregar conjunto de dados
+## tre_sagres_jul jestores jugados
 tre_sagres_jul <- read.csv('../../data/TRE_Sagres_Resp_Eleito.csv')
+
+## tre_sagres_n_jul jestores não jugados
 tre_sagres_n_jul <- read.csv('../../data/TRE_Sagres_Eleit_Idon.csv')
 
-tre_sagres_jul$class <- "Julgados"
-tre_sagres_n_jul$class <- "Não julgados"
-
-
-tre_sagres_jul <- select(tre_sagres_jul,-DECISÃO, -RES..DECISÃO.PODER.LEGISLATIVO, -ITEM, -PROCESSO, -SUBCATEGORIA, -RESPONSÁVEL, -CPF)
-tre_sagres <- rbind(tre_sagres_jul, tre_sagres_n_jul)
-
+## dados referentes a unidade gestora
 ugestora <- read.csv('../../data/codigo_ugestora.csv', encoding = "UTF-8")
+
+## contratos realizados pelas unidades gestoras
 contrato <- read.csv('../../data/contratos.csv', encoding = "UTF-8")
 
-
-licitacoes <- subset(contrato, tp_Licitacao %in% c(6, 7) & dt_Ano > 2008)
-
-licitacoes$dt_Ano <- with(licitacoes, unlist(lapply(dt_Ano, relabel_ano)))
-
-n.dispensas <- aggregate(tp_Licitacao ~ cd_UGestora + dt_Ano, licitacoes, length)
-colnames(n.dispensas)[3] <- "n.dispensas"
-
-tre_sagres <- merge(tre_sagres, n.dispensas, all.x = T, by.x=c("cd_Ugestora","dt_Ano"), by.y = c("cd_UGestora","dt_Ano"))
-tre_sagres$n.dispensas <- with(tre_sagres, ifelse(is.na(n.dispensas),0,n.dispensas))
-
-write.table(tre_sagres, "../../data/tre_sagres_unificadoBase.csv", sep=";", row.names = F, quote = F)
-
-
-codigo_ugestora <- read.csv("../../data/codigo_ugestora.csv")
+## Conjundo de aditivos solicitados pelas unidades gestoras
 aditivos = read.csv("../../data/aditivos.csv")
-contratos = read.csv("../../data/contratos.csv")
+
+## Sumário eleitoral das unidades gestoras
 quantidadeEleitores = read.csv("../../data/quantidadeEleitores.csv",  encoding = "UTF-8")
 
+# Adiciona coluna class e valor de "Jugados" para gestores julgados
+tre_sagres_jul$class <- "Julgados"
 
-# Aditivos
+# Adiciona coluna class e valor de "Não jugado" para gestores não julgados
+tre_sagres_n_jul$class <- "Não julgados"
+
+# Revolve colunas não necessárias
+tre_sagres_jul <- select(tre_sagres_jul,-DECISÃO, -RES..DECISÃO.PODER.LEGISLATIVO, -ITEM, -PROCESSO, -SUBCATEGORIA, -RESPONSÁVEL, -CPF)
+
+# Junta conjunto de dados dos gestores julgados e dos não julgados
+tre_sagres <- rbind(tre_sagres_jul, tre_sagres_n_jul)
+
+# seleciona conjunto de contrados realizados após o ano de 2008 com licitações do tipo "Dispensa de valor" ou "Dispensa por outro motivo"
+licitacoes <- subset(contrato, tp_Licitacao %in% c(6, 7) & dt_Ano > 2008)
+
+# Aplica a função "relabel_ano" as licitações selecionadas
+licitacoes$dt_Ano <- with(licitacoes, unlist(lapply(dt_Ano, relabel_ano)))
+
+# Agrupa as dispensas de cada gestao agrupadas pelo ano
+n.dispensas <- aggregate(tp_Licitacao ~ cd_UGestora + dt_Ano, licitacoes, length)
+
+# Modifica o nome da coluna "tp_Licitacao" no conjunto "n.dispensas" para "n.dispensas"
+colnames(n.dispensas)[3] <- "n.dispensas"
+
+# Merge dos conjuntos "tre_sagres" e "n.dispensas". Merge feito pelo ano e unidade gestora
+tre_sagres <- merge(tre_sagres, n.dispensas, all.x = T, by.x=c("cd_Ugestora","dt_Ano"), by.y = c("cd_UGestora","dt_Ano"))
+
+# Atribui 0 para "N/A"
+tre_sagres$n.dispensas <- with(tre_sagres, ifelse(is.na(n.dispensas),0,n.dispensas))
+
+# Salvar o conjunto "tre_sagres"
+write.table(tre_sagres, "../../data/tre_sagres_unificadoBase.csv", sep=";", row.names = F, quote = F)
+
+# Aplica a função "relabel_ano" ao conjunto "Aditivos"
 aditivos$dt_Ano <- with(aditivos, unlist(lapply(dt_Ano, relabel_ano)))
-set_features <- group_by(aditivos, cd_UGestora, dt_Ano) %>% mutate(quantidadeAditivoPorGestao = length(vl_Aditivo))
-set_features <- select(set_features, dt_Ano, cd_UGestora, quantidadeAditivoPorGestao)
-set_features = unique(set_features)
 
+# Agrupa os aditivos de cada gestao pelo ano
+aditivos <- aggregate(nu_Aditivo ~ cd_UGestora + dt_Ano, aditivos, length)
 
 # Convite de Licitações
-conviteLicitacaoPorGestao <- filter(contratos, tp_Licitacao == 3)
-conviteLicitacaoPorGestao$dt_Ano <- with(conviteLicitacaoPorGestao, unlist(lapply(dt_Ano, relabel_ano)))
-conviteLicitacaoPorGestao = group_by(conviteLicitacaoPorGestao, cd_UGestora, dt_Ano) %>% mutate(quantidadeConviteLicitacaoPorGestao = length(cd_UGestora))
-conviteLicitacaoPorGestao <- select(conviteLicitacaoPorGestao, dt_Ano, cd_UGestora, quantidadeConviteLicitacaoPorGestao)
-conviteLicitacaoPorGestao = unique(conviteLicitacaoPorGestao)
-conviteLicitacaoPorGestao = na.omit(conviteLicitacaoPorGestao)
-set_features <- merge(set_features, conviteLicitacaoPorGestao, by.x = c("cd_UGestora","dt_Ano"), by.y = c("cd_UGestora","dt_Ano"), all.x = T)
-set_features[is.na(set_features)] <- 0
+## Seleciona todos os contratos do tipo convite
+conviteLicitacaoPorGestao <- filter(contrato, tp_Licitacao == 3)
 
+# Aplica a função "relabel_ano" ao conjunto de licitações do tipo "Convite"
+conviteLicitacaoPorGestao$dt_Ano <- with(conviteLicitacaoPorGestao, unlist(lapply(dt_Ano, relabel_ano)))
+
+# Agrupa os convites de licitações de cada gestao pelo ano
+conviteLicitacaoPorGestao <- aggregate(nu_Contrato ~ cd_UGestora + dt_Ano, conviteLicitacaoPorGestao, length)
+
+# Merge dos conjuntos "aditivos" e "conviteLicitacaoPorGestao". Merge feito pelo ano e unidade gestora
+set_features <- merge(aditivos, conviteLicitacaoPorGestao, by.x = c("cd_UGestora","dt_Ano"), by.y = c("cd_UGestora","dt_Ano"), all.x = T)
 
 # Quantidade de Eleitores por Municipio e Distancia da capital
 quantidadeEleitores = select(quantidadeEleitores, Abrangencia, Quantidade2009, Quantidade2013, DistanciaParaCapital)
+
+# Média de Eleitores entre os anos
 quantidadeEleitores <- group_by(quantidadeEleitores, Abrangencia) %>% mutate(media = (Quantidade2009 + Quantidade2013)/2)
 
-# Exportar csv
+# Salva o conjunto "set_features"
  write.csv(set_features, file = "../../data/set_features.csv", row.names = F, quote = F)
+# Salva o conjunto "quantidadeEleitores"
  write.csv(quantidadeEleitores, file = "../../data/quantidadeEleitores.csv", row.names = F, quote = F)
 
 
- tre_sagres <- read.csv('../../data/tre_sagres_unificadoBase.csv', header=T, sep=";", fileEncoding="UTF-8")
- set_features <- read.csv('../../data/set_features.csv')
- quantidadeEleitores <- read.csv('../../data/quantidadeEleitores.csv')
- 
- 
- tre_sagres <- merge(tre_sagres, set_features, by.x = c("cd_Ugestora","dt_Ano"), by.y = c("cd_UGestora","dt_Ano"), all.x = T)
- tre_sagres <- merge(tre_sagres, quantidadeEleitores, by.x = c("de_Ugestora"), by.y = c("Abrangencia"), all.x = T)
- 
- tre_sagres[is.na(tre_sagres)] <- 0
+# Merge dos conjuntos "tre_sagres" e "set_features". Merge feito pelo ano e unidade gestora 
+tre_sagres <- merge(tre_sagres, set_features, by.x = c("cd_Ugestora","dt_Ano"), by.y = c("cd_UGestora","dt_Ano"), all.x = T)
 
- tre_sagres <- unique(tre_sagres)
+# Merge dos conjuntos "tre_sagres" e "quantidadeEleitores". Merge feito pelo ano e unidade gestora 
+tre_sagres <- merge(tre_sagres, quantidadeEleitores, by.x = c("de_Ugestora"), by.y = c("Abrangencia"), all.x = T)
  
+# Adiciona 0 nos "N/A"
+tre_sagres[is.na(tre_sagres)] <- 0
+
+# Elimina os repitidos
+tre_sagres <- unique(tre_sagres)
  
- 
- write.table(tre_sagres, "../../data/tre_sagres_unificado.csv", quote = F, row.names = F, sep=",")
+# Salva o conjunto "tre_sagres" com o nome "tre_sagres_unificado.csv"
+write.table(tre_sagres, "../../data/tre_sagres_unificado.csv", quote = F, row.names = F, sep=",")
  
