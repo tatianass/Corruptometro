@@ -100,9 +100,9 @@ quantidadeEleitores <- group_by(quantidadeEleitores, Abrangencia) %>% mutate(med
  write.csv(quantidadeEleitores, file = "../../data/quantidadeEleitores.csv", row.names = F, quote = F)
 
 
- tre_sagres <- read.csv('data/tre_sagres_unificadoBase.csv', header=T, sep=";", fileEncoding="UTF-8")
- set_features <- read.csv('data/set_features.csv')
- quantidadeEleitores <- read.csv('data/quantidadeEleitores.csv')
+ tre_sagres <- read.csv('../../data/tre_sagres_unificadoBase.csv', header=T, sep=";", fileEncoding="UTF-8")
+ set_features <- read.csv('../../data/set_features.csv')
+ quantidadeEleitores <- read.csv('../../data/quantidadeEleitores.csv')
  
  
  tre_sagres <- merge(tre_sagres, set_features, by.x = c("cd_Ugestora","dt_Ano"), by.y = c("cd_UGestora","dt_Ano"), all.x = T)
@@ -115,31 +115,4 @@ quantidadeEleitores <- group_by(quantidadeEleitores, Abrangencia) %>% mutate(med
  
  
  write.table(tre_sagres, "../../data/tre_sagres_unificado.csv", quote = F, row.names = F, sep=",")
-
- data = read.csv("../../data/tre_sagres_unificado.csv",header=FALSE,skip=1)
- features = select(data, V6,V7,V8)
- 
- table(data$V5)
- 
- train_idx = createDataPartition(y=data$V5, p=.9,list=FALSE)
- train = data[train_idx,]
- test = data[-train_idx,]
- 
- features = select(train, V6,V7,V8)
- 
- prop.table(table(train$V5))
- prop.table(table(test$V5))
- 
- grid = expand.grid(.ntree=c(10,20,30,40,50,100,200),.mtry=2,.model="tree")
- fitControl = trainControl(method="repeatedcv",number=10,repeats=10,returnResamp="all")
- labels = as.factor(train$V5)
- model = train(x=features,y=labels,trControl=fitControl)
- prob = predict
- plot(model)
- 
- test_labels = as.factor(test$V5)
- predictions = predict(model,newdata=test)
- prob = predict(model,newdata=test,type = "prob")
- confusionMatrix(data = predictions, test_labels)
-
  
