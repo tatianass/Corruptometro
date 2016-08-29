@@ -2,8 +2,8 @@ library(gtools)
 
 # Jefferson
 tre_sagres <- read.csv('tre_sagres_unificadoBase.csv', header=T, sep=";", fileEncoding="UTF-8")
-set_features <- read.csv('set_features.csv')
-quantidadeEleitores <- read.csv('quantidadeEleitores.csv')
+set_features <- read.csv('set_features.csv', header=T, sep=";", fileEncoding="UTF-8")
+quantidadeEleitores <- read.csv('quantidadeEleitores.csv', header=T, sep=";", fileEncoding="UTF-8")
 
 
 tre_sagres <- merge(tre_sagres, set_features, by.x = c("cd_Ugestora","dt_Ano"), by.y = c("cd_UGestora","dt_Ano"), all.x = T)

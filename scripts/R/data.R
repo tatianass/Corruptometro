@@ -45,10 +45,10 @@ relabel_ano <- function(x){
 
 # Carregar conjunto de dados
 ## tre_sagres_jul jestores jugados
-tre_sagres_jul <- read.csv('../../data/TRE_Sagres_Resp_Eleito.csv')
+tre_sagres_jul <- read.csv('../../data/TRE_Sagres_Resp_Eleito.csv', encoding = "UTF-8")
 
-## tre_sagres_n_jul jestores nÃ£o jugados
-tre_sagres_n_jul <- read.csv('../../data/TRE_Sagres_Eleit_Idon.csv')
+## tre_sagres_n_jul jestores NÃo  jugados
+tre_sagres_n_jul <- read.csv('../../data/TRE_Sagres_Eleit_Idon.csv', encoding = "UTF-8")
 
 ## dados referentes a unidade gestora
 ugestora <- read.csv('../../data/codigo_ugestora.csv', encoding = "UTF-8")
@@ -57,7 +57,7 @@ ugestora <- read.csv('../../data/codigo_ugestora.csv', encoding = "UTF-8")
 contrato <- read.csv('../../data/contratos.csv', encoding = "UTF-8")
 
 ## Conjundo de aditivos solicitados pelas unidades gestoras
-aditivos = read.csv("../../data/aditivos.csv")
+aditivos = read.csv("../../data/aditivos.csv", encoding = "UTF-8")
 
 ## SumÃ¡rio eleitoral das unidades gestoras
 quantidadeEleitores = read.csv("../../data/quantidadeEleitores.csv",  encoding = "UTF-8")
@@ -65,13 +65,13 @@ quantidadeEleitores = read.csv("../../data/quantidadeEleitores.csv",  encoding =
 # Adiciona coluna class e valor de "Jugados" para gestores julgados
 tre_sagres_jul$class <- "Julgados"
 
-# Adiciona coluna class e valor de "NÃ£o jugado" para gestores nÃ£o julgados
-tre_sagres_n_jul$class <- "NÃ£o julgados"
+# Adiciona coluna class e valor de "NÃo  jugado" para gestores NÃo julgados
+tre_sagres_n_jul$class <- "NÃo julgados"
 
-# Revolve colunas nÃ£o necessÃ¡rias
-tre_sagres_jul <- select(tre_sagres_jul,-DECISÃƒO, -RES..DECISÃƒO.PODER.LEGISLATIVO, -ITEM, -PROCESSO, -SUBCATEGORIA, -RESPONSÃVEL, -CPF)
+# Revolve colunas NÃo  necessÃ¡rias
+tre_sagres_jul <- select(tre_sagres_jul,-DECISÃO, -RES..DECISÃO.PODER.LEGISLATIVO, -ITEM, -PROCESSO, -SUBCATEGORIA, -RESPONSÁVEL, -CPF)
 
-# Junta conjunto de dados dos gestores julgados e dos nÃ£o julgados
+# Junta conjunto de dados dos gestores julgados e dos NÃo julgados
 tre_sagres <- rbind(tre_sagres_jul, tre_sagres_n_jul)
 
 # seleciona conjunto de contrados realizados apÃ³s o ano de 2008 com licitaÃ§Ãµes do tipo "Dispensa de valor" ou "Dispensa por outro motivo"
@@ -93,7 +93,7 @@ tre_sagres <- merge(tre_sagres, n.dispensas, all.x = T, by.x=c("cd_Ugestora","dt
 tre_sagres$n.dispensas <- with(tre_sagres, ifelse(is.na(n.dispensas),0,n.dispensas))
 
 # Salvar o conjunto "tre_sagres"
-write.table(tre_sagres, "../../data/tre_sagres_unificadoBase.csv", sep=";", row.names = F, quote = F)
+write.table(tre_sagres, "../../data/tre_sagres_unificadoBase.csv", sep=";", row.names = F, quote = F, fileEncoding = "UTF-8")
 
 # Aplica a funÃ§Ã£o "relabel_ano" ao conjunto "Aditivos"
 aditivos$dt_Ano <- with(aditivos, unlist(lapply(dt_Ano, relabel_ano)))
@@ -121,9 +121,9 @@ quantidadeEleitores = select(quantidadeEleitores, Abrangencia, Quantidade2009, Q
 quantidadeEleitores <- group_by(quantidadeEleitores, Abrangencia) %>% mutate(media = (Quantidade2009 + Quantidade2013)/2)
 
 # Salva o conjunto "set_features"
- write.csv(set_features, file = "../../data/set_features.csv", row.names = F, quote = F)
+write.csv(set_features, file = "../../data/set_features.csv", row.names = F, quote = F, fileEncoding = "UTF-8")
 # Salva o conjunto "quantidadeEleitores"
- write.csv(quantidadeEleitores, file = "../../data/quantidadeEleitores.csv", row.names = F, quote = F)
+write.csv(quantidadeEleitores, file = "../../data/quantidadeEleitores.csv", row.names = F, quote = F, fileEncoding = "UTF-8")
 
 
 # Merge dos conjuntos "tre_sagres" e "set_features". Merge feito pelo ano e unidade gestora 
@@ -139,5 +139,5 @@ tre_sagres[is.na(tre_sagres)] <- 0
 tre_sagres <- unique(tre_sagres)
  
 # Salva o conjunto "tre_sagres" com o nome "tre_sagres_unificado.csv"
-write.table(tre_sagres, "../../data/tre_sagres_unificado.csv", quote = F, row.names = F, sep=",")
+write.table(tre_sagres, "../../data/tre_sagres_unificado.csv", quote = F, row.names = F, sep=",", fileEncoding = "UTF-8")
  
