@@ -1,44 +1,6 @@
-# ----------- Bibliotecas INICIO
-# Para gráficos
-if(!require(ggplot2)){
-  install.packages("ggplot2")
-}
-library(ggplot2)
-
-#Para manipulação dos dados
-if(!require(dplyr)){
-  install.packages("dplyr")
-}
-library(dplyr)
-
-# Utilizada para criar as partições de treino e teste
-if(!require(caret)){  
-  install.packages("caret")
-}
-library(caret)
-
-# Aprendizado de máquina
-if(!require(mlbench)){
-  install.packages("mlbench")
-}
-library(mlbench)
-
-# Árvore de decisão
-if(!require(C50)){  
-  install.packages("C50")
-}
-library(C50)
-
-# Random - Floresta randômica
-if(!require(randomForest)){
-  install.packages("randomForest")
-}
-library(randomForest)
-# ----------- Bibliotecas  FIM
-
 # Função para modificar o ano.
-## Gestões entre 2009 e 2012 tem o ano modificado para 2009
-## Gestões entre 2013 e 2016 tem o ano modificado para 2013
+# Gestões entre 2009 e 2012 tem o ano modificado para 2009
+# Gestões entre 2013 e 2016 tem o ano modificado para 2013
 relabel_ano <- function(x){
   ifelse(x >= 2009 && x <2013, 2009, 2013)
 }
@@ -57,21 +19,16 @@ ugestora <- read.csv('../../data/codigo_ugestora.csv', encoding = "UTF-8")
 contrato <- read.csv('../../data/contratos.csv', encoding = "UTF-8")
 
 ## Conjundo de aditivos solicitados pelas unidades gestoras
-aditivos = read.csv("../../data/aditivos.csv", encoding = "UTF-8")
+aditivos <- read.csv("../../data/aditivos.csv", encoding = "UTF-8")
 
 ## Sumário eleitoral das unidades gestoras
 quantidadeEleitores = read.csv("../../data/quantidadeEleitores.csv", encoding = "UTF-8")
 
-# Adiciona coluna Classe e valor de "Jugados" para gestores julgados
+# Adiciona coluna Classe
 tre_sagres_jul$Classe <- "Julgado"
-
-# Adiciona coluna Classe e valor de "Não julgados" para gestores Não julgados
 tre_sagres_n_jul$Classe <- "Não julgado"
 
-# Revolve colunas não necessárias
 tre_sagres_jul <- select(tre_sagres_jul, -DECISÃO, -RES..DECISÃO.PODER.LEGISLATIVO, -ITEM, -PROCESSO, -SUBCATEGORIA, -RESPONSÁVEL, -CPF)
-
-# Junta conjunto de dados dos gestores julgados e dos Não julgados
 tre_sagres <- rbind(tre_sagres_jul, tre_sagres_n_jul)
 
 # seleciona conjunto de contrados realizados após o ano de 2008 com licitações do tipo "Dispensa de valor" ou "Dispensa por outro motivo"
@@ -80,16 +37,10 @@ licitacoes <- subset(contrato, tp_Licitacao %in% c(6, 7) & dt_Ano > 2008)
 # Aplica a função "relabel_ano" as licitações selecionadas
 licitacoes$dt_Ano <- with(licitacoes, unlist(lapply(dt_Ano, relabel_ano)))
 
-# Agrupa as dispensas de cada gestao agrupadas pelo ano
+# Adiciona a coluna "nu_Dispesas" à base
 nu_Dispensas <- aggregate(tp_Licitacao ~ cd_UGestora + dt_Ano, licitacoes, length)
-
-# Modifica o nome da coluna "tp_Licitacao" no conjunto "nu_Dispensas" para "nu_Dispensas"
 colnames(nu_Dispensas)[3] <- "nu_Dispensas"
-
-# Merge dos conjuntos "tre_sagres" e "nu_Dispensas". Merge feito pelo ano e unidade gestora
 tre_sagres <- merge(tre_sagres, nu_Dispensas, all.x = T, by.x=c("cd_Ugestora","dt_Ano"), by.y = c("cd_UGestora","dt_Ano"))
-
-# Atribui 0 para "N/A"
 tre_sagres$nu_Dispensas <- with(tre_sagres, ifelse(is.na(nu_Dispensas),0,nu_Dispensas))
 
 # Aplica a função "relabel_ano" ao conjunto "Aditivos"
