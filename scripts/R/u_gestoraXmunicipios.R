@@ -6,10 +6,10 @@ idhm <- function(cd_uges, dt_ano){
   de_mun <- subset(u_gestora, cd_Ugestora == cd_uges)
   list_de_mun <- de_mun$de_Ugestora
   de_mun <- as.character(list_de_mun[1])
-  nome_mun <- unlist(strsplit(de_mun, "C?mara Municipal de "))[2]
+  nome_mun <- unlist(strsplit(de_mun, "Prefeitura Municipal de "))[2]
   
   #pegar convenios pelo nome do municipio e ano
-  municipio <- subset(municipios, Munic?pio == toupper(nome_mun) & ANO == dt_ano)
+  municipio <- subset(municipios, Município == toupper(nome_mun) & ANO == dt_ano)
   idhmr <- municipio$IDHM_R
   return(idhmr)
 }
