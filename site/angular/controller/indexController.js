@@ -3,7 +3,7 @@ app.controller("IndexController", ["$scope", "$http", function($scope, $http){
     $scope.nome = "";
     $scope.value = 0;
     $scope.info = {}
-    $scope.data = {}
+    $scope.featureData = {}
 
     //figuras representando reacoes a cada probabilidade
     $scope.emotion = "emotion/1.png";
@@ -51,7 +51,7 @@ app.controller("IndexController", ["$scope", "$http", function($scope, $http){
     //busca pelo nome no do candidato
     $scope.search = function(nome){
         //busca por nome nos dados
-        data.forEach(function(i){
+        $scope.dados.forEach(function(i){
         if(i.Nome === nome){
             $scope.info = i;
         }
@@ -74,7 +74,7 @@ app.controller("IndexController", ["$scope", "$http", function($scope, $http){
         updateEmotion($scope.value/100);
 
         //atualizando os valores dos indicadores
-        $scope.data=[{
+        $scope.featureData=[{
             label: "QAL",
             value: $scope.info.QAL
         },
@@ -87,7 +87,7 @@ app.controller("IndexController", ["$scope", "$http", function($scope, $http){
             value: $scope.info.QCL
         }]
 
-        $scope.features.data = $scope.data;
+        $scope.features.data = $scope.featureData;
     }
 
     //grafico das features/indicadores
@@ -98,7 +98,7 @@ app.controller("IndexController", ["$scope", "$http", function($scope, $http){
             theme: "zune",
             yAxisMaxValue: "400"
         },
-        data: $scope.data,
+        data: $scope.featureData,
         "trendlines": [
                 {
                     "line": [
@@ -163,9 +163,19 @@ app.controller("IndexController", ["$scope", "$http", function($scope, $http){
         return (x.length==1) ? "0"+x : x;  //Add zero if we get only one character
     }
 
+    //dropdown da busca
+  $scope.status = {
+    isopen: false
+  };
+
+  $scope.toggleDropdown = function($event) {
+    $event.preventDefault();
+    $event.stopPropagation();
+    $scope.status.isopen = !$scope.status.isopen;
+  };
 
     //dados
-    var data = [
+    $scope.dados = [
       {
         "Nome": "TARCISIO ALVES FIRMINO",
         "Prefeitura": "ÁGUA BRANCA",
