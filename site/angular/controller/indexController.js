@@ -98,7 +98,20 @@ app.controller("IndexController", ["$scope", "$http", function($scope, $http){
             theme: "zune",
             yAxisMaxValue: "400"
         },
-        data: $scope.data
+        data: $scope.data,
+        "trendlines": [
+                {
+                    "line": [
+                        {
+                            "startvalue": "50",
+                            "color": "#1aaf5d",
+                            "valueOnRight": "1",
+                            "displayvalue": "Média (50%)"
+                        }
+                    ]
+                }
+            ]
+
     };
 
     //Cores do termometro segundo a probabilidade
