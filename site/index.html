@@ -141,7 +141,7 @@
                                                 <input type="text" class="form-control" placeholder="Nome" ng-model="nome"></input>
                                             </div>
                                         </li>
-                                        <li role="presentation" ng-repeat='d in dados | filter:nome'> <a ng-click=search(d.Nome)> {{d.Nome}} </a>
+                                        <li role="presentation" ng-repeat="d in dados | filter:nome | orderBy:'Nome'"> <a ng-click=search(d.Nome)> {{d.Nome}} </a>
                                         </li>
                                     </ul>
                                 </div>
