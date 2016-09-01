@@ -4,6 +4,17 @@ app.controller("IndexController", ["$scope", "$http", function($scope, $http){
     $scope.value = 0;
     $scope.info = {}
     $scope.featureData = {}
+    var mediaFeature = [
+                        {
+                            "value": "50"
+                        }, 
+                        {
+                            "value": "50"
+                        }, 
+                        {
+                            "value": "50"
+                        }
+                    ]
 
     //figuras representando reacoes a cada probabilidade
     $scope.emotion = "emotion/1.png";
@@ -87,28 +98,56 @@ app.controller("IndexController", ["$scope", "$http", function($scope, $http){
             value: $scope.info.QCL
         }]
 
-        $scope.features.data = $scope.featureData;
+        $scope.features.dataset[0].data = $scope.featureData;
     }
 
     //grafico das features/indicadores
     $scope.features = {
-        chart: {
-            caption: "Índices de Corrupção",
-            paletteColors: "#0075c2",
-            theme: "zune",
-            yAxisMaxValue: "400"
-        },
-        data: $scope.featureData,
-        "trendlines": [
+        "chart": {
+                "caption": "Indicadores de corrupção",
+                "paletteColors": "#0075c2,#1aaf5d",
+                "bgColor": "#ffffff",
+                "showBorder": "0",
+                "showHoverEffect":"1",
+                "showCanvasBorder": "0",
+                "usePlotGradientColor": "0",
+                "plotBorderAlpha": "10",
+                "legendBorderAlpha": "0",
+                "legendShadow": "0",
+                "placevaluesInside": "1",
+                "valueFontColor": "#ffffff",
+                "showXAxisLine": "1",
+                "xAxisLineColor": "#999999",
+                "divlineColor": "#999999",               
+                "divLineIsDashed": "1",
+                "showAlternateVGridColor": "0",
+                "subcaptionFontBold": "0",
+                "subcaptionFontSize": "14",
+                "yAxisMaxValue": "400"
+            },            
+            "categories": [
                 {
-                    "line": [
+                    "category": [
                         {
-                            "startvalue": "50",
-                            "color": "#1aaf5d",
-                            "valueOnRight": "1",
-                            "displayvalue": "Média (50%)"
+                            "label": "Aditivos em Licitações"
+                        }, 
+                        {
+                            "label": "Dispensas de Licitações"
+                        }, 
+                        {
+                            "label": "Convites de Licitações"
                         }
                     ]
+                }
+            ],            
+            "dataset": [
+                {
+                    "seriesname": "Resultado",
+                    "data": $scope.featureData
+                }, 
+                {
+                    "seriesname": "Média",
+                    "data": mediaFeature
                 }
             ]
 
@@ -162,17 +201,6 @@ app.controller("IndexController", ["$scope", "$http", function($scope, $http){
         x  = parseInt(x).toString(16);      //Convert to a base16 string
         return (x.length==1) ? "0"+x : x;  //Add zero if we get only one character
     }
-
-    //dropdown da busca
-  $scope.status = {
-    isopen: false
-  };
-
-  $scope.toggleDropdown = function($event) {
-    $event.preventDefault();
-    $event.stopPropagation();
-    $scope.status.isopen = !$scope.status.isopen;
-  };
 
     //dados
     $scope.dados = [
