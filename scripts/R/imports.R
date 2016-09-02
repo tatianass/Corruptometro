@@ -16,6 +16,11 @@ if(!require(caret)){
 }
 library(caret)
 
+if(!require(FSelector)){  
+  install.packages("FSelector")
+}
+library(FSelector)
+
 # # Aprendizado de máquina
 # if(!require(mlbench)){
 #   install.packages("mlbench")

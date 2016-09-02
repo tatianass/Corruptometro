@@ -5,8 +5,7 @@ source("data.R")
 # Apresentar os possíveis níveis de Classe
 table(tre_sagres$classe)
 
-# Partição de treino com x% dos dados
-#train_idx = caret::createDataPartition(y=tre_sagres$Classe, p=.9, list=FALSE)
+# Partição de teste com os candidatos reeleitos
 test_idx = which(tre_sagres$Candidato2016)
 
 # Conjunto de treino e teste
