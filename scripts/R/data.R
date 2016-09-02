@@ -1,6 +1,9 @@
 # Fun??o para modificar o ano.
 # Gest?es entre 2009 e 2012 tem o ano modificado para 2009
 # Gest?es entre 2013 e 2016 tem o ano modificado para 2013
+
+source("imports.R")
+
 relabel_ano <- function(x){
   ifelse(x >= 2009 && x <2013, 2009, 2013)
 }
@@ -24,12 +27,22 @@ aditivos <- read.csv("../../data/aditivos.csv", encoding = "UTF-8")
 ## Sum?rio eleitoral das unidades gestoras
 quantidadeEleitores = read.csv("../../data/quantidadeEleitores.csv", encoding = "UTF-8")
 
+candidadosEleicao2016 = read.csv("../../data/Candidatos_eleicao_2016.csv", encoding = "UTF-8")
+
+candidadosEleicao2016$Candidato2016 <- TRUE
+
 # Adiciona coluna Classe
 tre_sagres_jul$Classe <- "Julgado"
 tre_sagres_n_jul$Classe <- "Nao julgado"
 
-tre_sagres_jul <- select(tre_sagres_jul, -DECISÃO, -RES..DECISÃO.PODER.LEGISLATIVO, -ITEM, -PROCESSO, -SUBCATEGORIA, -RESPONSÁVEL, -CPF)
+tre_sagres_jul <- select(tre_sagres_jul, -DECISÃƒO, -RES..DECISÃƒO.PODER.LEGISLATIVO, -ITEM, -PROCESSO, -SUBCATEGORIA, -RESPONSÃVEL, -CPF)
 tre_sagres <- rbind(tre_sagres_jul, tre_sagres_n_jul)
+
+tre_sagres <- unique(tre_sagres)
+
+tre_sagres <- merge(tre_sagres, candidadosEleicao2016, by = c("de_Ugestora","ELEITO"), all.x = T)
+
+tre_sagres[is.na(tre_sagres)] <- FALSE
 
 # seleciona conjunto de contrados realizados apÃ³s o ano de 2008 com licitaÃ§Ãµes do tipo "Dispensa de valor" ou "Dispensa por outro motivo"
 licitacoes <- subset(contrato, tp_Licitacao %in% c(6, 7) & dt_Ano > 2008)
@@ -69,7 +82,7 @@ nu_Aditivos_Totais <- unique(nu_Aditivos_Totais)
 tre_sagres <- merge(tre_sagres, nu_Aditivos_Totais, by.x = c("cd_Ugestora","dt_Ano"), by.y = c("cd_UGestora","dt_Ano"), all.x = T)
 tre_sagres[is.na(tre_sagres)] <- 0
 
-# Adiciona convite de Licitações
+# Adiciona convite de Licita??es
 ## Seleciona todos os contratos do tipo convite
 conviteLicitacaoPorGestao <- filter(contrato, tp_Licitacao == 3)
 conviteLicitacaoPorGestao$dt_Ano <- with(conviteLicitacaoPorGestao, unlist(lapply(dt_Ano, relabel_ano)))
@@ -85,3 +98,6 @@ tre_sagres[is.na(tre_sagres)] <- 0
 tre_sagres <- unique(tre_sagres)
 
 write.table(tre_sagres, "../../data/tre_sagres_unificado.csv", quote = F, row.names = F, sep=",", fileEncoding = "UTF-8")
+
+
+
