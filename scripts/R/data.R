@@ -9,8 +9,7 @@ relabel_ano <- function(x){
 }
 
 # Carregar conjunto de dados
-tre_sagres_jul <- read.csv('../../data/TRE_Sagres_Resp_Eleito.csv', encoding = "UTF-8")
-tre_sagres_n_jul <- read.csv('../../data/TRE_Sagres_Eleit_Idon.csv', encoding = "UTF-8")
+tre_sagres <- read.csv("../../data/TRE_Sagres_Resp_Eleito_Final.csv",header=T, encoding = "UTF-8")
 ugestora <- read.csv('../../data/codigo_ugestora.csv', encoding = "UTF-8")
 contrato <- read.csv('../../data/contratos.csv', encoding = "UTF-8")
 aditivos <- read.csv("../../data/aditivos.csv", encoding = "UTF-8")
@@ -18,16 +17,8 @@ quantidadeEleitores = read.csv("../../data/quantidadeEleitores.csv", encoding = 
 candidadosEleicao2016 = read.csv("../../data/Candidatos_eleicao_2016.csv", encoding = "UTF-8")
 candidadosEleicao2016$Candidato2016 <- TRUE
 
-# Adiciona coluna Classe
-tre_sagres_jul$Classe <- "Julgado"
-tre_sagres_n_jul$Classe <- "Nao julgado"
-
-tre_sagres_jul <- select(tre_sagres_jul, -DECISÃO, -RES..DECISÃO.PODER.LEGISLATIVO, -ITEM, -PROCESSO, -SUBCATEGORIA, -RESPONSÁVEL, -CPF)
-tre_sagres <- rbind(tre_sagres_jul, tre_sagres_n_jul)
-tre_sagres <- unique(tre_sagres)
-
 # Adiciona coluna com os candidatos a eleição em 2016
-tre_sagres <- merge(tre_sagres, candidadosEleicao2016, by = c("de_Ugestora","ELEITO"), all.x = T)
+tre_sagres <- merge(tre_sagres, candidadosEleicao2016, by.x = c("de_Ugestora","Eleito"), by.y = c("de_Ugestora","ELEITO"), all.x = T)
 tre_sagres[is.na(tre_sagres)] <- FALSE
 
 # seleciona conjunto de contrados realizados apÃ³s o ano de 2008 com licitaÃ§Ãµes do tipo "Dispensa de valor" ou "Dispensa por outro motivo"

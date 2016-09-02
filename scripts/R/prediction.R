@@ -2,11 +2,8 @@
 source("imports.R")
 source("data.R")
 
-# Importar conjunto de dados "tre_sagres_unificado.csv"
-# tre_sagres = read.csv("../../data/tre_sagres_unificado.csv",header=T, encoding = "UTF-8")
-
 # Apresentar os possíveis níveis de Classe
-table(tre_sagres$Classe)
+table(tre_sagres$classe)
 
 # Partição de treino com x% dos dados
 #train_idx = caret::createDataPartition(y=tre_sagres$Classe, p=.9, list=FALSE)
@@ -22,18 +19,17 @@ train.features = select(train, nu_Dispensas, nu_Aditivo_Prazo, nu_Aditivo_Devolu
 test.features = select(test, nu_Dispensas, nu_Aditivo_Prazo, nu_Aditivo_Devolucao, nu_Aditivo_Valor, nu_Aditivos_Totais, nu_Contrato)
 
 # Proporção dos conjuntos de treino e teste
-prop.table(table(train$Classe))
-prop.table(table(test$Classe))
+prop.table(table(train$classe))
+prop.table(table(test$classe))
 
 #Treino do modelo
 #grid = expand.grid(.ntree=c(10,20,30,40,50,100,200),.mtry=2,.model="tree")
 
 fitControl = trainControl(method="repeatedcv", number=10, repeats=10, returnResamp="all")
-labels = as.factor(train$Classe)
+labels = as.factor(train$classe)
 model = train(x=train.features, y=labels, trControl=fitControl, method="rf")
 
-#
-test_labels = as.factor(test$Classe)
+test_labels = as.factor(test$classe)
 predictions = predict(model,newdata=test.features)
 prob = predict(model,newdata=test.features,type = "prob")
 caret::confusionMatrix(predictions, test_labels)
