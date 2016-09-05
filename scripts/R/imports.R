@@ -3,12 +3,13 @@ if(!require(dplyr)){
 }
 library(dplyr)
 
+# Machine learning
 if(!require(caret)){  
   install.packages("caret")
 }
 library(caret)
 
-#
+# Metricas de importancia de atributos
 if(!require(FSelector)){  
   install.packages("FSelector")
 }
@@ -19,3 +20,8 @@ if(!require(jsonlite)){
   install.packages("jsonlite")
 }
 library(jsonlite)
+
+if(!require(rjson)){  
+  install.packages("rjson")
+}
+library(rjson)

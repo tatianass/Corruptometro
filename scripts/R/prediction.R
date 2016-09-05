@@ -28,7 +28,6 @@ caret::confusionMatrix(predictions, test$classe)
 prob.table = cbind(test, prob) %>% 
   select(Nome = Eleito, Prefeitura = de_Ugestora, NAV = nu_Aditivo_Valor, NAT = nu_Aditivos_Totais, Probabilidade = IRREGULAR)
 
-sink("candidatos.json")
+sink("../../data/candidatos.json")
 cat(toJSON(prob.table))
 sink()
-
