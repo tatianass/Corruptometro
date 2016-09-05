@@ -12,23 +12,23 @@ test_idx = which(tre_sagres$Candidato2016)
 test = tre_sagres[test_idx,]
 train = tre_sagres[-test_idx,]
 
-# features do conjunto de treino
-#features.names = c("nu_Dispensas", "nu_Aditivo_Prazo", "nu_Aditivo_Devolucao", "nu_Aditivo_Valor", "nu_Aditivos_Totais", "nu_Convites")
-train.features = select(train, nu_Aditivo_Valor, nu_Aditivos_Totais)
-test.features = select(test, nu_Aditivo_Valor, nu_Aditivos_Totais)
-
 # Proporção dos conjuntos de treino e teste
 prop.table(table(train$classe))
 prop.table(table(test$classe))
 
 #Treino do modelo
-#grid = expand.grid(.ntree=c(10,20,30,40,50,100,200),.mtry=2,.model="tree")
-
 fitControl = trainControl(method="repeatedcv", number=10, repeats=10, returnResamp="all")
 labels = as.factor(train$classe)
-model = train(x=train.features, y=labels, trControl=fitControl, method="rf")
+model = train(form = classe ~ nu_Aditivo_Valor + nu_Aditivos_Totais, data = train, trControl=fitControl, method="rf")
 
-test_labels = as.factor(test$classe)
-predictions = predict(model,newdata=test.features)
-prob = predict(model,newdata=test.features,type = "prob")
-caret::confusionMatrix(predictions, test_labels)
+predictions = predict(model,newdata=test)
+prob = predict(model,newdata=test,type = "prob")
+caret::confusionMatrix(predictions, test$classe)
+
+prob.table = cbind(test, prob) %>% 
+  select(Nome = Eleito, Prefeitura = de_Ugestora, NAV = nu_Aditivo_Valor, NAT = nu_Aditivos_Totais, Probabilidade = IRREGULAR)
+
+sink("candidatos.json")
+cat(toJSON(prob.table))
+sink()
+
