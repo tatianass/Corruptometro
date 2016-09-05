@@ -13,9 +13,9 @@ test = tre_sagres[test_idx,]
 train = tre_sagres[-test_idx,]
 
 # features do conjunto de treino
-#features.names = c("nu_Dispensas", "nu_Aditivo_Prazo", "nu_Aditivo_Devolucao", "nu_Aditivo_Valor", "nu_Aditivos_Totais", "nu_Contrato")
-train.features = select(train, nu_Dispensas, nu_Aditivo_Prazo, nu_Aditivo_Devolucao, nu_Aditivo_Valor, nu_Aditivos_Totais, nu_Contrato)
-test.features = select(test, nu_Dispensas, nu_Aditivo_Prazo, nu_Aditivo_Devolucao, nu_Aditivo_Valor, nu_Aditivos_Totais, nu_Contrato)
+#features.names = c("nu_Dispensas", "nu_Aditivo_Prazo", "nu_Aditivo_Devolucao", "nu_Aditivo_Valor", "nu_Aditivos_Totais", "nu_Convites")
+train.features = select(train, nu_Aditivo_Valor, nu_Aditivos_Totais)
+test.features = select(test, nu_Aditivo_Valor, nu_Aditivos_Totais)
 
 # Proporção dos conjuntos de treino e teste
 prop.table(table(train$classe))

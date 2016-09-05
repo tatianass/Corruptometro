@@ -10,8 +10,9 @@ irregulares <- subset(features, classe == 'IRREGULAR')
 nao_irregulares <- subset(features, classe == 'NAO IRREGULAR')
 
 wilcox.test(irregulares$nu_Dispensas, nao_irregulares$nu_Dispensas, paired = F)
-wilcox.test(irregulares$nu_Aditivo_Prazo, nao_irregulares$nu_Aditivo_Prazo, paired = F)
 wilcox.test(irregulares$nu_Aditivo_Devolucao, nao_irregulares$nu_Aditivo_Devolucao, paired = F)
+
+wilcox.test(irregulares$nu_Aditivo_Prazo, nao_irregulares$nu_Aditivo_Prazo, paired = F)
 wilcox.test(irregulares$nu_Aditivo_Valor, nao_irregulares$nu_Aditivo_Valor, paired = F)
 wilcox.test(irregulares$nu_Aditivos_Totais, nao_irregulares$nu_Aditivos_Totais, paired = F)
-wilcox.test(irregulares$nu_Contrato, nao_irregulares$nu_Contrato, paired = F)
+wilcox.test(irregulares$nu_Convites, nao_irregulares$nu_Convites, paired = F)

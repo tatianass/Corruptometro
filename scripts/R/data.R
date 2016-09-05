@@ -1,9 +1,8 @@
+source("imports.R")
+
 # Fun??o para modificar o ano.
 # Gest?es entre 2009 e 2012 tem o ano modificado para 2009
 # Gest?es entre 2013 e 2016 tem o ano modificado para 2013
-
-source("imports.R")
-
 relabel_ano <- function(x){
   ifelse(x >= 2009 && x <2013, 2009, 2013)
 }
@@ -21,13 +20,10 @@ candidadosEleicao2016$Candidato2016 <- TRUE
 tre_sagres <- merge(tre_sagres, candidadosEleicao2016, by.x = c("de_Ugestora","Eleito"), by.y = c("de_Ugestora","ELEITO"), all.x = T)
 tre_sagres[is.na(tre_sagres)] <- FALSE
 
+# Adiciona a coluna "nu_Dispesas" a base
 # seleciona conjunto de contrados realizados após o ano de 2008 com licitações do tipo "Dispensa de valor" ou "Dispensa por outro motivo"
 licitacoes <- subset(contrato, tp_Licitacao %in% c(6, 7) & dt_Ano > 2008)
-
-# Aplica a função "relabel_ano" as licitações selecionadas
 licitacoes$dt_Ano <- with(licitacoes, unlist(lapply(dt_Ano, relabel_ano)))
-
-# Adiciona a coluna "nu_Dispesas" a base
 nu_Dispensas <- aggregate(tp_Licitacao ~ cd_UGestora + dt_Ano, licitacoes, length)
 colnames(nu_Dispensas)[3] <- "nu_Dispensas"
 tre_sagres <- merge(tre_sagres, nu_Dispensas, all.x = T, by.x=c("cd_Ugestora","dt_Ano"), by.y = c("cd_UGestora","dt_Ano"))
@@ -64,6 +60,7 @@ tre_sagres[is.na(tre_sagres)] <- 0
 conviteLicitacaoPorGestao <- filter(contrato, tp_Licitacao == 3)
 conviteLicitacaoPorGestao$dt_Ano <- with(conviteLicitacaoPorGestao, unlist(lapply(dt_Ano, relabel_ano)))
 conviteLicitacaoPorGestao <- aggregate(nu_Contrato ~ cd_UGestora + dt_Ano, conviteLicitacaoPorGestao, length)
+colnames(conviteLicitacaoPorGestao)[3] <- "nu_Convites"
 tre_sagres <- merge(tre_sagres, conviteLicitacaoPorGestao, by.x = c("cd_Ugestora","dt_Ano"), by.y = c("cd_UGestora","dt_Ano"), all.x = T)
 
 # Adiciona Quantidade de Eleitores por Municipio e Distancia da capital
