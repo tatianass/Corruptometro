@@ -26,7 +26,7 @@ tre_sagres <- merge(tre_sagres, candidadosEleicao2016, by.x = c("de_Ugestora","E
 tre_sagres[is.na(tre_sagres)] <- FALSE
 
 # Adiciona Quantidade de Eleitores por Municipio e Distancia da capital
-quantidadeEleitores <- select(quantidadeEleitores, Abrangencia, DistanciaParaCapital, Media_Eleitores = (Quantidade2009 + Quantidade2013)/2)
+quantidadeEleitores <- select(quantidadeEleitores, Abrangencia, DistanciaParaCapital, Media_Eleitores = (Quantidade2009 + Quantidade2013)/2) %>% mutate(Media_Eleitores = 1000*Media_Eleitores)
 tre_sagres <- merge(tre_sagres, quantidadeEleitores, by.x = c("de_Ugestora"), by.y = c("Abrangencia"), all.x = T)
 
 # Conta o numero de contratos da prefeitura
@@ -38,19 +38,18 @@ tre_sagres <- merge(tre_sagres, nu_Contratos, all.x = T, by.x=c("cd_Ugestora","d
 nu_Dispensas <- subset(contrato, tp_Licitacao %in% c(6, 7)) %>% 
   group_by(cd_UGestora, dt_Ano) %>% summarise(nu_Dispensas = length(tp_Licitacao))
 tre_sagres <- merge(tre_sagres, nu_Dispensas, all.x = T, by.x=c("cd_Ugestora","dt_Ano"), by.y = c("cd_UGestora","dt_Ano"))
-tre_sagres$nu_Dispensas <- with(tre_sagres, ifelse(is.na(nu_Dispensas),0,nu_Dispensas))
 
 # Adiciona os atributos de aditivos
-aditivo_De_Prazo <- filter(aditivos, vl_Aditivo == "0,0000")
-aditivo_De_Prazo <- group_by(aditivo_De_Prazo, cd_UGestora, dt_Ano) %>% mutate(nu_Aditivo_Prazo = length(nu_Aditivo))
+aditivo_De_Prazo <- filter(aditivos, vl_Aditivo == "0,0000") %>% 
+  group_by(cd_UGestora, dt_Ano) %>% mutate(nu_Aditivo_Prazo = length(nu_Aditivo))
 aditivo_De_Prazo <- select(aditivo_De_Prazo, cd_UGestora, dt_Ano ,nu_Aditivo_Prazo)
 
-aditivo_De_Devolucao = filter(aditivos, regexpr('-', vl_Aditivo) > 0)
-aditivo_De_Devolucao <- group_by(aditivo_De_Devolucao, cd_UGestora, dt_Ano) %>% mutate(nu_Aditivo_Devolucao = length(nu_Aditivo))
+aditivo_De_Devolucao = filter(aditivos, regexpr('-', vl_Aditivo) > 0) %>% 
+  group_by(cd_UGestora, dt_Ano) %>% mutate(nu_Aditivo_Devolucao = length(nu_Aditivo))
 aditivo_De_Devolucao <- select(aditivo_De_Devolucao, cd_UGestora, dt_Ano, nu_Aditivo_Devolucao)
 
-aditivo_De_Valor = filter(aditivos, regexpr('-', vl_Aditivo) < 0)
-aditivo_De_Valor <- group_by(aditivo_De_Valor, cd_UGestora, dt_Ano) %>% mutate(nu_Aditivo_Valor = length(nu_Aditivo))
+aditivo_De_Valor <- filter(aditivos, regexpr('-', vl_Aditivo) < 0) %>% 
+  group_by(cd_UGestora, dt_Ano) %>% mutate(nu_Aditivo_Valor = length(nu_Aditivo))
 aditivo_De_Valor <- select(aditivo_De_Valor, cd_UGestora, dt_Ano, nu_Aditivo_Valor)
 
 nu_Aditivos_Totais <- merge(aditivo_De_Prazo, aditivo_De_Devolucao, by = c("cd_UGestora", "dt_Ano"), all.x = T)
@@ -61,17 +60,23 @@ nu_Aditivos_Totais$nu_Aditivos_Totais <- with(nu_Aditivos_Totais, nu_Aditivo_Pra
 nu_Aditivos_Totais <- unique(nu_Aditivos_Totais)
 
 tre_sagres <- merge(tre_sagres, nu_Aditivos_Totais, by.x = c("cd_Ugestora","dt_Ano"), by.y = c("cd_UGestora","dt_Ano"), all.x = T)
-tre_sagres[is.na(tre_sagres)] <- 0
 
-# Adiciona convite de Licita??es
+# Adiciona convite de Licitacoes
 ## Seleciona todos os contratos do tipo convite
-conviteLicitacaoPorGestao <- filter(contrato, tp_Licitacao == 3)
-#conviteLicitacaoPorGestao$dt_Ano <- with(conviteLicitacaoPorGestao, unlist(lapply(dt_Ano, relabel_ano)))
-conviteLicitacaoPorGestao <- aggregate(nu_Contrato ~ cd_UGestora + dt_Ano, conviteLicitacaoPorGestao, length)
-colnames(conviteLicitacaoPorGestao)[3] <- "nu_Convites"
+conviteLicitacaoPorGestao <- filter(contrato, tp_Licitacao == 3) %>% 
+  group_by(cd_UGestora, dt_Ano) %>% summarise(nu_Convites = length(tp_Licitacao))
 tre_sagres <- merge(tre_sagres, conviteLicitacaoPorGestao, by.x = c("cd_Ugestora","dt_Ano"), by.y = c("cd_UGestora","dt_Ano"), all.x = T)
 
 tre_sagres[is.na(tre_sagres)] <- 0
-tre_sagres <- unique(tre_sagres)
+
+# Adiciona proporcao de cada atributo pelo total de contratos
+tre_sagres <- tre_sagres %>%
+  group_by(cd_Ugestora, dt_Ano) %>%
+  mutate_each(funs(Prop_Contratos = ./nu_Contratos), nu_Dispensas:nu_Convites)
+
+# Adiciona proporcao de cada atributo pela media de eleitores
+tre_sagres <- tre_sagres %>%
+  group_by(cd_Ugestora, dt_Ano) %>%
+  mutate_each(funs(Prop_Eleitores = ./Media_Eleitores), nu_Contratos:nu_Convites)
 
 write.table(tre_sagres, "../../data/tre_sagres_unificado.csv", quote = F, row.names = F, sep=",", fileEncoding = "UTF-8")
