@@ -1,7 +1,7 @@
 source("imports.R")
 
 tre_sagres <- read.csv("../../data/tre_sagres_unificado.csv", encoding = "UTF-8")
-features <- tre_sagres[,c(5,7:12)]
+features <- select(tre_sagres, classe, starts_with("nu_"))
 
 information.gain(classe ~ ., features)
 gain.ratio(classe ~ ., features)
