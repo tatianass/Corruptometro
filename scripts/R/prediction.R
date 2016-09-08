@@ -1,6 +1,7 @@
 # Excutar script data.R
 source("imports.R")
-source("data.R")
+#source("data.R")
+tre_sagres <- read.csv('../../data/tre_sagres_unificado.csv', encoding = "UTF-8")
 
 # Apresentar os possíveis níveis de Classe
 table(tre_sagres$classe)
@@ -18,7 +19,8 @@ prop.table(table(test$classe))
 
 #Treino do modelo
 fitControl = trainControl(method="repeatedcv", number=10, repeats=10, returnResamp="all")
-model = train(form = classe ~ nu_Aditivo_Valor + nu_Aditivos_Totais + nu_Aditivo_Valor_Prop_Eleitores + nu_Aditivos_Totais_Prop_Eleitores + nu_Convites_Prop_Contratos + nu_Aditivo_Valor_Prop_Contratos, data = train, trControl=fitControl, method="rf")
+#train.features = select(train, classe, starts_with("nu_"), -starts_with("nu_Aditivo_Devolucao"), -nu_Dispensas)
+model = train(form = classe ~ nu_Aditivo_Valor + nu_Aditivos_Totais, data = train, trControl=fitControl, method="rf")
 
 predictions = predict(model,newdata=test)
 prob = predict(model,newdata=test,type = "prob")
