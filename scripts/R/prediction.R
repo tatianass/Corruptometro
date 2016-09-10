@@ -20,7 +20,7 @@ prop.table(table(test$classe))
 #Treino do modelo
 fitControl = trainControl(method="repeatedcv", number=10, repeats=10, returnResamp="all")
 #train.features = select(train, classe, starts_with("nu_"), -starts_with("nu_Aditivo_Devolucao"), -nu_Dispensas)
-model = train(form = classe ~ nu_Aditivo_Valor + nu_Aditivos_Totais, data = train, trControl=fitControl, method="rf")
+model = train(form = classe ~ nu_Aditivo_Valor_Prop_Eleitores + nu_Aditivos_Totais_Prop_Eleitores, data = train, trControl=fitControl, method="rf")
 
 predictions = predict(model,newdata=test)
 prob = predict(model,newdata=test,type = "prob")
